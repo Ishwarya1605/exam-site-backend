@@ -2,63 +2,44 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("./models/User");
+const connectDB = require("./config/database");
 
+// Import routes
+const authRoutes = require('./routes/authRoutes');
+
+// Initialize app
 const app = express();
+
+// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json());  // Must be before routes
+app.use("/api/auth", authRoutes);
 
-// Debugging
-console.log("MONGO_URI from .env =>", process.env.MONGO_URI);
+// Database connection
+connectDB();
 
-if (!process.env.MONGO_URI) {
-  console.error("❌ ERROR: MONGO_URI is undefined!");
-  process.exit(1);
-}
 
-// Connect MongoDB
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// Register Route
-app.post("/api/register", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({ email, password: hashedPassword });
-    await user.save();
-
-    res.json({ message: "✅ User registered successfully!" });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+// Health check route
+app.get("/api/health", (req, res) => {
+  res.json({ message: "Server is running successfully!" });
 });
 
-// Login Route
-app.post("/api/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) return res.status(400).json({ error: "User not found" });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
-
-    const token = jwt.sign({ id: user._id }, "secretkey", { expiresIn: "1h" });
-    res.json({ message: "✅ Login successful", token });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// 404 handler (fixed)
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
 });
 
-// Start Server
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
+});
+
+// Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
+});
