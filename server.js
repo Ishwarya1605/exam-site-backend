@@ -6,7 +6,7 @@ const cors = require("cors");
 const connectDB = require("./config/database");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-
+const studentsRoutes = require("./routes/studentsRoutes");
 const app = express();
 
 
@@ -15,6 +15,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/students", studentsRoutes);
 
 
 app.get("/api/health", (req, res) => {
