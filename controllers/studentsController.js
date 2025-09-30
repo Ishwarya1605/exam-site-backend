@@ -1,5 +1,5 @@
 const Student = require("../models/studentsModels");
-const bcrypt = require("bcryptjs");
+
 exports.createStudents = async (req, res) => {
   try {
     const students = req.body; 
@@ -23,3 +23,53 @@ exports.getStudents = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getStudentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await Student.findById(id);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+    res.json(student);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+exports.updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+
+    const updated = await Student.findByIdAndUpdate(
+      id,
+      body,
+      { new: true, runValidators: true } 
+    );
+
+    if (!updated) return res.status(404).json({ message: "Student not found" });
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+exports.deleteStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const student = await Student.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
+
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    res.json({ message: "Student marked as deleted", student });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+
+
