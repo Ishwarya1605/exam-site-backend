@@ -1,10 +1,10 @@
-const subject = require("../models/subject");
+const Subject = require("../models/subject");
 
 
-const getSubject = async (req, res) => {
+const getSubjects = async (req, res) => {
   try {
-    const courses = await Subject.find();
-    res.json(subject);
+    const subjects = await Subject.find();
+    res.json(subjects);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -33,14 +33,13 @@ const createSubject = async (req, res) => {
   }
 };
 
-
 const updateSubject = async (req, res) => {
   try {
     const { name, description } = req.body;
     const subject = await Subject.findByIdAndUpdate(
       req.params.id,
       { name, description },
-      { new: true }
+      { new: true } 
     );
     if (!subject) return res.status(404).json({ error: "Subject not found" });
     res.json(subject);
@@ -61,7 +60,7 @@ const deleteSubject = async (req, res) => {
 };
 
 module.exports = {
-  getSubject,
+  getSubjects,
   getSubjectById,
   createSubject,
   updateSubject,
