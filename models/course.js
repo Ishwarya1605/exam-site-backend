@@ -4,7 +4,7 @@ const courseSchema = new mongoose.Schema (
   {
     title: {type: String, required: true},
     author: {type: String, required: true},
-    students: {type: Number, default: 0},
+    students: {type: Number,required:true},
     duration: {type: String, required: true},
 
     level: {
