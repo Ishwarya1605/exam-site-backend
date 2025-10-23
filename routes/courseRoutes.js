@@ -1,33 +1,20 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middleware/auth");
+const express = require ('express');
+
 const {
+  createCourse,
   getCourses,
   getCourseById,
-  createCourse,
   updateCourse,
-  deleteCourse
-} = require("../controllers/courseController");
+  deleteCourse,
+} = require ('../controllers/courseController.js');
+const upload = require ('../middleware/upload.js');
+const router = express.Router();
 
 
-router.get("/", getCourses);
-router.get("/:id", getCourseById);
-
-
-router.post("/", auth, (req, res, next) => {
-  if (req.user.role !== "admin") return res.status(403).json({ error: "Access denied" });
-  next();
-}, createCourse);
-
-router.put("/:id", auth, (req, res, next) => {
-  if (req.user.role !== "admin") return res.status(403).json({ error: "Access denied" });
-  next();
-}, updateCourse);
-
-router.delete("/:id", auth, (req, res, next) => {
-  if (req.user.role !== "admin") return res.status(403).json({ error: "Access denied" });
-  next();
-}, deleteCourse);
+router.post ('/', upload.single ('image'), createCourse);
+router.get ('/', getCourses);
+router.get ('/:id', getCourseById);
+router.put ('/:id', upload.single ('image'), updateCourse); 
+router.delete ('/:id', deleteCourse);
 
 module.exports = router;
-
