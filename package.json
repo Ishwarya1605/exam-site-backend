@@ -8,7 +8,6 @@
     "build": "echo 'No build step needed for backend'"
   },
   "dependencies": {
-    "type": "module",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
