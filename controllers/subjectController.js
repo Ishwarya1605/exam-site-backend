@@ -1,95 +1,80 @@
-const Subject = require("../models/subject");
-
-
-const getSubjects = async (req, res) => {
-  try {
-    const subjects = await Subject.find(); 
-    res.json(subjects);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-
-const getSubjectById = async (req, res) => {
-  try {
-    const subject = await Subject.findById(req.params.id);
-    if (!subject)
-      return res.status(404).json({ error: "Subject not found" });
-    res.json(subject);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+const Subject = require("../models/subject.js");
+const { convertToBase64 } = require("../middleware/upload.js");
 
 const createSubject = async (req, res) => {
   try {
-    const { name, author, students, duration, level, image } = req.body;
+    const { name, author, students, duration, level } = req.body;
+    const imageBase64 = req.file ? convertToBase64(req.file) : "";
 
-    let base64Image = image;
-    if (req.file) {
-      const imgBuffer = req.file.buffer;
-      base64Image = `data:${req.file.mimetype};base64,${imgBuffer.toString("base64")}`;
-    }
-
-    const newSubject = new Subject({
+    const newSubject = await Subject.create({
       name,
       author,
       students,
       duration,
       level,
-      image: base64Image,
+      image: imageBase64,
     });
 
-    const savedSubject = await newSubject.save();
-    res.status(201).json(savedSubject);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(201).json({ message: "Subject created successfully", subject: newSubject });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
+const getSubjects = async (req, res) => {
+  try {
+    const subjects = await Subject.find();
+    res.json(subjects);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getSubjectById = async (req, res) => {
+  try {
+    const subject = await Subject.findById(req.params.id);
+    if (!subject) return res.status(404).json({ message: "Subject not found" });
+    res.json(subject);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const updateSubject = async (req, res) => {
   try {
-    const { name, author, students, duration, level, image } = req.body;
-    let base64Image = image;
+    const { name, author, students, duration, level } = req.body;
+    const subject = await Subject.findById(req.params.id);
+    if (!subject) return res.status(404).json({ message: "Subject not found" });
 
-    if (req.file) {
-      const imgBuffer = req.file.buffer;
-      base64Image = `data:${req.file.mimetype};base64,${imgBuffer.toString("base64")}`;
-    }
+    if (req.file) subject.image = convertToBase64(req.file);
+    if (name) subject.name = name;
+    if (author) subject.author = author;
+    if (students) subject.students = students;
+    if (duration) subject.duration = duration;
+    if (level) subject.level = level;
 
-    const updatedSubject = await Subject.findByIdAndUpdate(
-      req.params.id,
-      { name, author, students, duration, level, image: base64Image },
-      { new: true }
-    );
-
-    if (!updatedSubject)
-      return res.status(404).json({ error: "Subject not found" });
-
-    res.json(updatedSubject);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const updatedSubject = await subject.save();
+    res.json({ message: "Subject updated", subject: updatedSubject });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
-
 
 const deleteSubject = async (req, res) => {
   try {
     const subject = await Subject.findByIdAndDelete(req.params.id);
-    if (!subject) return res.status(404).json({ error: "Subject not found" });
-
-    res.json({ message: "Subject deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (!subject) return res.status(404).json({ message: "Subject not found" });
+    res.json({ message: "Subject deleted" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 module.exports = {
+  createSubject,
   getSubjects,
   getSubjectById,
-  createSubject,
   updateSubject,
   deleteSubject,
 };
+
