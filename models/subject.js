@@ -5,16 +5,14 @@ const subjectSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true,
     },
     author: {
       type: String,
       required: true,
-      trim: true,
     },
     students: {
       type: Number,
-      default: 0,
+      required: true,
     },
     duration: {
       type: Number,
@@ -28,10 +26,6 @@ const subjectSchema = new mongoose.Schema(
     image: {
       type: String,
       required: false,
-    },
-    isDeleted: {
-      type: Boolean,
-      default: false,
     },
   },
   { timestamps: true }

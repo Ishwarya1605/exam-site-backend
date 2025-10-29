@@ -3,7 +3,7 @@ const Subject = require("../models/subject");
 
 const getSubjects = async (req, res) => {
   try {
-    const subjects = await Subject.find({ isDeleted: false });
+    const subjects = await Subject.find(); 
     res.json(subjects);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -14,7 +14,7 @@ const getSubjects = async (req, res) => {
 const getSubjectById = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.id);
-    if (!subject || subject.isDeleted)
+    if (!subject)
       return res.status(404).json({ error: "Subject not found" });
     res.json(subject);
   } catch (err) {
@@ -22,12 +22,10 @@ const getSubjectById = async (req, res) => {
   }
 };
 
-
 const createSubject = async (req, res) => {
   try {
     const { name, author, students, duration, level, image } = req.body;
 
-  
     let base64Image = image;
     if (req.file) {
       const imgBuffer = req.file.buffer;
@@ -76,13 +74,10 @@ const updateSubject = async (req, res) => {
   }
 };
 
+
 const deleteSubject = async (req, res) => {
   try {
-    const subject = await Subject.findByIdAndUpdate(
-      req.params.id,
-      { isDeleted: true },
-      { new: true }
-    );
+    const subject = await Subject.findByIdAndDelete(req.params.id);
     if (!subject) return res.status(404).json({ error: "Subject not found" });
 
     res.json({ message: "Subject deleted successfully" });
