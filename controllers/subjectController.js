@@ -3,7 +3,7 @@ const Subject = require("../models/subject");
 
 const getSubjects = async (req, res) => {
   try {
-    const subjects = await Subject.find();
+    const subjects = await Subject.find({ isDeleted: false });
     res.json(subjects);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -14,7 +14,8 @@ const getSubjects = async (req, res) => {
 const getSubjectById = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.id);
-    if (!subject) return res.status(404).json({ error: "Subject not found" });
+    if (!subject || subject.isDeleted)
+      return res.status(404).json({ error: "Subject not found" });
     res.json(subject);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -24,35 +25,66 @@ const getSubjectById = async (req, res) => {
 
 const createSubject = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const subject = new Subject({ name, description });
-    await subject.save();
-    res.status(201).json(subject);
+    const { name, author, students, duration, level, image } = req.body;
+
+  
+    let base64Image = image;
+    if (req.file) {
+      const imgBuffer = req.file.buffer;
+      base64Image = `data:${req.file.mimetype};base64,${imgBuffer.toString("base64")}`;
+    }
+
+    const newSubject = new Subject({
+      name,
+      author,
+      students,
+      duration,
+      level,
+      image: base64Image,
+    });
+
+    const savedSubject = await newSubject.save();
+    res.status(201).json(savedSubject);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 const updateSubject = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const subject = await Subject.findByIdAndUpdate(
+    const { name, author, students, duration, level, image } = req.body;
+    let base64Image = image;
+
+    if (req.file) {
+      const imgBuffer = req.file.buffer;
+      base64Image = `data:${req.file.mimetype};base64,${imgBuffer.toString("base64")}`;
+    }
+
+    const updatedSubject = await Subject.findByIdAndUpdate(
       req.params.id,
-      { name, description },
-      { new: true } 
+      { name, author, students, duration, level, image: base64Image },
+      { new: true }
     );
-    if (!subject) return res.status(404).json({ error: "Subject not found" });
-    res.json(subject);
+
+    if (!updatedSubject)
+      return res.status(404).json({ error: "Subject not found" });
+
+    res.json(updatedSubject);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-
 const deleteSubject = async (req, res) => {
   try {
-    const subject = await Subject.findByIdAndDelete(req.params.id);
+    const subject = await Subject.findByIdAndUpdate(
+      req.params.id,
+      { isDeleted: true },
+      { new: true }
+    );
     if (!subject) return res.status(404).json({ error: "Subject not found" });
+
     res.json({ message: "Subject deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -64,5 +96,5 @@ module.exports = {
   getSubjectById,
   createSubject,
   updateSubject,
-  deleteSubject
+  deleteSubject,
 };
