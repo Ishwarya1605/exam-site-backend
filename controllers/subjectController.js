@@ -15,7 +15,7 @@ const createSubject = async (req, res) => {
       image: imageBase64,
     });
 
-    res.status(201).json({ message: "Subject created successfully", subject: newSubject });
+    res.status(201).json(newSubject);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -54,7 +54,7 @@ const updateSubject = async (req, res) => {
     if (level) subject.level = level;
 
     const updatedSubject = await subject.save();
-    res.json({ message: "Subject updated", subject: updatedSubject });
+    res.status(201).json(updatedSubject);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
