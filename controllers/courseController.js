@@ -78,7 +78,7 @@ const updateCourse = async (req, res) => {
     if (level) course.level = level;
 
     const updatedCourse = await course.save();
-    res.json({ message: "Course updated", course: updatedCourse });
+    res.json( updatedCourse );
   } catch (error) {
 
     res.status(500).json({ error: error.message });
