@@ -17,7 +17,7 @@ const createCourse = async (req, res) => {
       image: imageBase64,
     });
 
-    res.status(201).json({ message: "Course created successfully", course: newCourse });
+    res.status(201).json(newCourse);
   } catch (error) {
 
     res.status(500).json({ error: error.message });
