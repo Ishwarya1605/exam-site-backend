@@ -46,12 +46,20 @@ const createMultipleTopics = async (req, res) => {
 const getTopicsBySubject = async (req, res) => {
   try {
     const { subjectId } = req.params;
-    const topics = await Topic.find({ subject: subjectId });
+    
+    const topics = await Topic.find({ subject: subjectId })
+      .populate("subject", "name");
+
+    if (!topics.length) {
+      return res.status(404).json({ message: "No topics found for this subject" });
+    }
+
     res.status(200).json(topics);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 module.exports = {
   createTopic,
