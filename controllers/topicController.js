@@ -1,29 +1,31 @@
 const Topic = require("../models/topic");
 const Subject = require("../models/subject");
 
-
 const createTopic = async (req, res) => {
   try {
     const { subjectId, topic, description } = req.body;
-
     const subject = await Subject.findById(subjectId);
     if (!subject) {
       return res.status(404).json({ error: "Subject not found" });
     }
 
-    const newTopic = new Topic({ subject: subjectId, topic, description });
+    const newTopic = new Topic({
+      subject: subjectId,
+      topic,
+      description,
+
+    });
+
     await newTopic.save();
     res.status(201).json(newTopic);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 const createMultipleTopics = async (req, res) => {
   try {
     const { subjectId, topics } = req.body;
-
     const subject = await Subject.findById(subjectId);
     if (!subject) {
       return res.status(404).json({ error: "Subject not found" });
@@ -36,7 +38,9 @@ const createMultipleTopics = async (req, res) => {
     }));
 
     const created = await Topic.insertMany(topicDocs);
+
     res.status(201).json(created);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -46,7 +50,8 @@ const createMultipleTopics = async (req, res) => {
 const getTopicsBySubject = async (req, res) => {
   try {
     const { subjectId } = req.params;
-    
+
+
     const topics = await Topic.find({ subject: subjectId })
       .populate("subject", "name");
 
@@ -55,14 +60,36 @@ const getTopicsBySubject = async (req, res) => {
     }
 
     res.status(200).json(topics);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+const getTopic = async (req, res) => {
+  try {
+    const { topicId } = req.params;
+    const topic = await Topic.findById(topicId);
+
+    if (!topic) {
+      return res.status(404).json({ error: "Topic not found" });
+    }
+
+    res.json({
+      _id: topic._id,
+      topic: topic.topic,
+      description: topic.description,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 module.exports = {
   createTopic,
   createMultipleTopics,
   getTopicsBySubject,
+  getTopic
 };
