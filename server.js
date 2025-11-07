@@ -8,6 +8,7 @@ const studentsRoutes = require('./routes/studentsRoutes.js');
 const courseRoutes = require('./routes/courseRoutes.js');
 const subjectRoutes = require('./routes/subjectRoutes.js');
 const topicRoutes = require('./routes/topicRoutes.js')
+const questionRoutes = require('./routes/questionRoutes.js')
 require('dotenv').config();
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/topics', topicRoutes)
+app.use('/api/questions', questionRoutes)
 
 app.get('/api/health', (req, res) => {
   res.json({ message: 'Server is running successfully!' });
