@@ -12,15 +12,6 @@ const questionSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
-        answer: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        defaultCode: {
-            type: String,
-            required: true,
-        },
     },
     { timestamps: true }
 );
