@@ -3,7 +3,7 @@ const Topic = require("../models/topic");
 
 const createQuestion = async (req, res) => {
     try {
-        const { topicId, question, answer, defaultCode } = req.body;
+        const { topicId, question } = req.body;
 
         const topic = await Topic.findById(topicId);
         if (!topic) {
@@ -13,8 +13,6 @@ const createQuestion = async (req, res) => {
         const newQuestion = new Question({
             topic: topicId,
             question,
-            answer,
-            defaultCode,
         });
 
         await newQuestion.save();
@@ -22,8 +20,6 @@ const createQuestion = async (req, res) => {
         res.status(201).json({
             _id: newQuestion._id,
             question: newQuestion.question,
-            answer: newQuestion.answer,
-            defaultCode: newQuestion.defaultCode,
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -42,8 +38,6 @@ const createMultipleQuestions = async (req, res) => {
         const questionDocs = questions.map((q) => ({
             topic: topicId,
             question: q.question,
-            answer: q.answer,
-            defaultCode: q.defaultCode,
         }));
 
         const created = await Question.insertMany(questionDocs);
@@ -51,8 +45,6 @@ const createMultipleQuestions = async (req, res) => {
         const response = created.map((q) => ({
             _id: q._id,
             question: q.question,
-            answer: q.answer,
-            defaultCode: q.defaultCode,
         }));
 
         res.status(201).json(response);
@@ -76,8 +68,6 @@ const getQuestionsByTopic = async (req, res) => {
             _id: q._id,
             topicName: q.topic.topic,
             question: q.question,
-            answer: q.answer,
-            defaultCode: q.defaultCode,
         }));
 
         res.status(200).json(response);
@@ -100,8 +90,6 @@ const getQuestionById = async (req, res) => {
             _id: question._id,
             topicName: question.topic.topic,
             question: question.question,
-            answer: question.answer,
-            defaultCode: question.defaultCode,
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -112,11 +100,11 @@ const getQuestionById = async (req, res) => {
 const updateQuestion = async (req, res) => {
     try {
         const { questionId } = req.params;
-        const { question, answer, defaultCode } = req.body;
+        const { question} = req.body;
 
         const updated = await Question.findByIdAndUpdate(
             questionId,
-            { question, answer, defaultCode },
+            { question},
             { new: true }
         );
 
@@ -127,8 +115,6 @@ const updateQuestion = async (req, res) => {
         res.status(200).json({
             _id: updated._id,
             question: updated.question,
-            answer: updated.answer,
-            defaultCode: updated.defaultCode,
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
