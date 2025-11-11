@@ -2,28 +2,36 @@ const Question = require("../models/question");
 const Topic = require("../models/topic");
 
 const createQuestion = async (req, res) => {
-    try {
-        const { topicId, question } = req.body;
+  try {
+    const { topic, question } = req.body;
 
-        const topic = await Topic.findById(topicId);
-        if (!topic) {
-            return res.status(404).json({ error: "Topic not found" });
-        }
 
-        const newQuestion = new Question({
-            topic: topicId,
-            question,
-        });
-
-        await newQuestion.save();
-
-        res.status(201).json({
-            _id: newQuestion._id,
-            question: newQuestion.question,
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if (!topic || !question) {
+      return res.status(400).json({ message: "Topic ID and question are required" });
     }
+
+    const topicExists = await Topic.findById(topic);
+    if (!topicExists) {
+      return res.status(404).json({ message: "Topic not found" });
+    }
+
+
+    const newQuestion = await Question.create({
+      topic,
+      question,
+    });
+
+    console.log(" Saved Question:", newQuestion);
+
+    res.status(201).json({
+      _id: newQuestion._id,
+      question: newQuestion.question,
+      topic: newQuestion.topic,
+    });
+  } catch (error) {
+    console.error(" Error creating question:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
 
