@@ -116,6 +116,14 @@ const deleteTopic = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const getAllTopics = async (req, res) => {
+  try {
+    const topics = await Topic.find().populate("subject", "subject");
+    res.status(200).json(topics);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch topics", error });
+  }
+};
 
 module.exports = {
   createTopic,
@@ -124,4 +132,5 @@ module.exports = {
   getTopic,
   updateTopic,
   deleteTopic,
+  getAllTopics,
 };

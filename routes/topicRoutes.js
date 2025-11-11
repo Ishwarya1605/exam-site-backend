@@ -7,8 +7,10 @@ const {
   getTopic,
   updateTopic,
   deleteTopic,
+  getAllTopics,
 } = require("../controllers/topicController");
 
+router.get("/", getAllTopics); 
 router.post("/bulk", createMultipleTopics);
 router.post("/", createTopic);
 router.get("/:subjectId", getTopicsBySubject);
